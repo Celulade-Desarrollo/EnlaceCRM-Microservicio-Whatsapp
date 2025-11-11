@@ -1,12 +1,25 @@
 import express from "express";
+import { createServer } from "http";
+import { Server } from "socket.io";
+import { sendMessage } from "./src/jobs/whatsapp.js";
 
 const app = express();
+const server = createServer(app);
+const io = new Server(server, {
+ cors: { origin: "*" }
+});
 const PORT = 6000;
-
-app.get("/", (req, res) => {
-  res.send("Whatsapp");
+io.on("connection", (socket) => {
+ console.log("Cliente conectado:", socket.id);
+ socket.on("sendNumber", async (data) => {
+   console.log("Número recibido:", data);
+   try {
+     await sendMessage(data.number, data.message);
+     socket.emit("success", "Mensaje enviado correctamente.");
+   } catch (err) {
+     console.error("Error enviando mensaje:", err);
+     socket.emit("error", "Error enviando mensaje.");
+   }
+ });
 });
-
-app.listen(PORT, () => {
-  console.log(`Microservicio Whatsapp provider is running on http://localhost:${PORT}`);
-});
+server.listen(PORT, () => console.log("Servidor WS en puerto " + PORT));
