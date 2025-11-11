@@ -8,6 +8,10 @@ const server = createServer(app);
 const io = new Server(server, {
  cors: { origin: "*" }
 });
+
+app.get("/", (req, res) => {
+ res.send("Servidor WS activo");
+});
 const PORT = 6000;
 io.on("connection", (socket) => {
  console.log("Cliente conectado:", socket.id);
