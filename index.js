@@ -1,29 +1,34 @@
 import express from "express";
-import { createServer } from "http";
-import { Server } from "socket.io";
+import cors from "cors";
 import { sendMessage } from "./src/jobs/whatsapp.js";
 
 const app = express();
-const server = createServer(app);
-const io = new Server(server, {
- cors: { origin: "*" }
+
+// Middlewares
+app.use(cors());
+app.use(express.json());
+
+// Endpoint base
+app.get("/", (req, res) => {
+  res.send("Servidor Whatsapp microserver activo");
 });
 
-app.get("/", (req, res) => {
- res.send("Servidor WS activo");
+// Endpoint para enviar mensaje
+app.post("/send-message", async (req, res) => {
+  const { number, message } = req.body;
+
+  if (!number || !message) {
+    return res.status(400).json({ error: "Faltan campos: number y message" });
+  }
+
+  try {
+    await sendMessage(number, message);
+    res.status(200).json({ success: true, message: "Mensaje enviado correctamente" });
+  } catch (err) {
+    console.error("Error enviando mensaje:", err);
+    res.status(500).json({ success: false, error: "Error enviando mensaje" });
+  }
 });
+
 const PORT = 6000;
-io.on("connection", (socket) => {
- console.log("Cliente conectado:", socket.id);
- socket.on("sendNumber", async (data) => {
-   console.log("Número recibido:", data);
-   try {
-     await sendMessage(data.number, data.message);
-     socket.emit("success", "Mensaje enviado correctamente.");
-   } catch (err) {
-     console.error("Error enviando mensaje:", err);
-     socket.emit("error", "Error enviando mensaje.");
-   }
- });
-});
-server.listen(PORT, () => console.log("Servidor WS en puerto " + PORT));
+app.listen(PORT, () => console.log("Servidor Whatsapp en puerto " + PORT));
