@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import { sendMessage } from "./src/jobs/whatsapp.js";
+import { authMiddleware } from "./token.js";
 
 const app = express();
 
@@ -9,12 +10,12 @@ app.use(cors());
 app.use(express.json());
 
 // Endpoint base
-app.get("/", (req, res) => {
+app.get("/", authMiddleware, (req, res) => {
   res.send("Servidor Whatsapp microserver activo");
 });
 
 // Endpoint para enviar mensaje
-app.post("/send-message", async (req, res) => {
+app.post("/send-message", authMiddleware,  async (req, res) => {
   const { number, message } = req.body;
 
   if (!number || !message) {
