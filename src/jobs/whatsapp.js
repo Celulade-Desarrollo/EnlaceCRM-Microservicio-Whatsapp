@@ -15,6 +15,26 @@ client.on("qr", (qr) => {
   qrcode.generate(qr, { small: true });
 });
 
+client.on("message", async (msg) => {
+  const texto = msg.body.trim().toLocaleLowerCase();
+
+  const regex = "recaudo"
+  const match = texto.match(regex);
+
+  if (!match) return;
+
+  const uuid = match[1];
+
+  try {
+    const res = await fetch(`http://localhost:4123/api/coordinator`);
+    const backendMessage = await res.text();
+    await client.sendMessage(msg.from, backendMessage);
+  } catch (e) {
+    await client.sendMessage(msg.from, "Error consultando el backend.");
+  }
+});
+
+
 client.on("ready", () => {
   console.log("Cliente de WhatsApp listo");
 });
