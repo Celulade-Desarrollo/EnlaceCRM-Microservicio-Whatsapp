@@ -2,6 +2,34 @@ import pkg from "whatsapp-web.js";
 const { Client, LocalAuth } = pkg;
 import qrcode from "qrcode-terminal";
 
+
+function formatearFecha(isoString) {
+  const fecha = new Date(isoString);
+
+  
+  const fechaStr = fecha.toLocaleDateString("es-CO", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    timeZone: "UTC" 
+  });
+
+
+  const horaStr = fecha.toLocaleTimeString("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+    timeZone: "UTC"
+  });
+
+  return `${fechaStr} ${horaStr} (UTC)`;
+}
+
+
+function formatearDinero(valor) {
+  return Number(valor).toLocaleString("es-CO");
+}
+
 const client = new Client({
   authStrategy: new LocalAuth(),
   puppeteer: {
@@ -16,24 +44,57 @@ client.on("qr", (qr) => {
 });
 
 client.on("message", async (msg) => {
+  const raw = msg.from;
+
+
+  const numero = raw.replace(/@c\.us|@g\.us|^57/g, "");
+
   const texto = msg.body.trim().toLocaleLowerCase();
 
-  const regex = "recaudo"
+  const regex = "recaudo";
   const match = texto.match(regex);
 
   if (!match) return;
 
-  const uuid = match[1];
-
   try {
-    const res = await fetch(`http://localhost:4123/api/coordinator`);
-    const backendMessage = await res.text();
-    await client.sendMessage(msg.from, backendMessage);
+    const res = await fetch(
+      `https://enlace-crm.com:3000/backend/api/recaudo/${numero}`
+    );
+    const data = await res.json();
+
+    if (Array.isArray(data) && data.length > 0) {
+     
+      const total = data.reduce((acc, m) => acc + Number(m.Monto || 0), 0);
+
+
+      const resumen =
+`*Resumen del recaudo de hoy*
+
+Movimientos encontrados: ${data.length}
+Total recaudado: *$${formatearDinero(total)}*`;
+
+      await client.sendMessage(msg.from, resumen);
+
+
+      for (const mov of data) {
+        const mensaje =
+`*Movimiento*
+
+ *Fecha:* ${formatearFecha(mov.FechaHoraMovimiento)}
+ *Monto:* $${formatearDinero(mov.Monto)}
+ *Factura:* ${mov.NroFacturaAlpina}`;
+
+        await client.sendMessage(msg.from, mensaje);
+      }
+
+    } else {
+      await client.sendMessage(msg.from, "No se encontraron movimientos para este número.");
+    }
   } catch (e) {
+    console.error(e);
     await client.sendMessage(msg.from, "Error consultando el backend.");
   }
 });
-
 
 client.on("ready", () => {
   console.log("Cliente de WhatsApp listo");
