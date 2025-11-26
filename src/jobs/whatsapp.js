@@ -1,5 +1,5 @@
 import pkg from "whatsapp-web.js";
-const { Client, LocalAuth } = pkg;
+const { Client, LocalAuth, Contact } = pkg;
 import qrcode from "qrcode-terminal";
 
 
@@ -41,24 +41,24 @@ const client = new Client({
 client.on("qr", (qr) => {
   console.log("QR WhatsApp:");
   qrcode.generate(qr, { small: true });
-});
+})
+
 
 client.on("message", async (msg) => {
-  const raw = msg.from;
-
-
-  const numero = raw.replace(/@c\.us|@g\.us|^57/g, "");
 
   const texto = msg.body.trim().toLocaleLowerCase();
 
-  const regex = "recaudo";
+  const regex = /^recaudo\s+(\d{10})$/i;
   const match = texto.match(regex);
+
+  const numero = match ? match[1] : null;
+  console.log(numero)
 
   if (!match) return;
 
   try {
     const res = await fetch(
-      `https://enlace-crm.com:3000/backend/api/recaudo/${numero}`
+      `http://localhost:2000/api/recaudo/${numero}`
     );
     const data = await res.json();
 
