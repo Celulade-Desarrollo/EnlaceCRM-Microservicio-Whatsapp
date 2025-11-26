@@ -15,7 +15,7 @@ app.get("/", authMiddleware, (req, res) => {
 });
 
 // Endpoint para enviar mensaje
-app.post("/send-message", authMiddleware,  async (req, res) => {
+app.post("/send-message", async (req, res) => {
   const { number, message } = req.body;
 
   if (!number || !message) {
