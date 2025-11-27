@@ -103,7 +103,7 @@ client.on("ready", () => {
 client.initialize();
 
 export const sendMessage = async (number, infomessage) => {
-  const chatId = number + "@c.us";
+  const chatId = `57${number}` + "@c.us";
   const message = infomessage;
   await client.sendMessage(chatId, message);
 };
