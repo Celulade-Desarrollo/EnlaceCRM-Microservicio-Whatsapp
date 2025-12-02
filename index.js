@@ -1,6 +1,6 @@
 import express from "express";
 import cors from "cors";
-import { sendMessage } from "./src/jobs/whatsapp.js";
+import { sendMessage } from "./events/whatsapp.js";
 import { authMiddleware } from "./token.js";
 
 const app = express();
