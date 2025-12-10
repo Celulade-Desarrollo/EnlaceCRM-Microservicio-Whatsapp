@@ -9,7 +9,7 @@ export async function truoraLinkHandler(customer_number) {
             to: customer_number,
             type: "template",
             template: {
-            name: "truora",
+            name: "truoralink",
             language: {
             code: "en",
             policy: "deterministic",
