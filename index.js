@@ -33,8 +33,8 @@ app.post("/send-message", async (req, res) => {
 });
 
 
-app.post("/meta/truora-link/:number", async (req, res) => {
-  const { number } = req.params;
+app.post("/meta/truora-link/:number/:name", async (req, res) => {
+  const { number,name } = req.params;
 
   if (!number) {
     return res.status(400).json({ error: "Falta el campo: customer_number" });
@@ -42,7 +42,7 @@ app.post("/meta/truora-link/:number", async (req, res) => {
 
   try {
     const numWhitPrefix = `57${number}`;
-    await truoraLinkHandler(numWhitPrefix);
+    await truoraLinkHandler(numWhitPrefix, name);
     res.status(200).json({ success: true, message: "Mensaje Truora enviado correctamente" });
   } catch (err) {
     console.error("Error enviando mensaje Truora:", err);

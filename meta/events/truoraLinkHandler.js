@@ -1,5 +1,5 @@
 import axios from "axios";
-export async function truoraLinkHandler(customer_number) {
+export async function truoraLinkHandler(customer_number, customer_name) {
     try {
         const url = "https://graph.facebook.com/v22.0/886055411262119/messages";
 
@@ -9,12 +9,25 @@ export async function truoraLinkHandler(customer_number) {
             to: customer_number,
             type: "template",
             template: {
-            name: "truoralink",
-            language: {
-            code: "en",
-            policy: "deterministic",
+                name: "truoralink",
+                language: {
+                code: "en",
+                policy: "deterministic"
+                },
+                components: [
+                {
+                    type: "body",
+                    parameters: [
+                    {
+                        type: "text",
+                        text: customer_name
+                    }
+                    ]
+                }
+                ]
             }
-        }};
+};
+
 
 
     const headers = {
