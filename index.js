@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import { sendMessage } from "./events/whatsapp.js";
 import { authMiddleware } from "./token.js";
+import { truoraLinkHandler } from "./meta/events/truoraLinkHandler.js";
 
 const app = express();
 
@@ -28,6 +29,24 @@ app.post("/send-message", async (req, res) => {
   } catch (err) {
     console.error("Error enviando mensaje:", err);
     res.status(500).json({ success: false, error: "Error enviando mensaje" });
+  }
+});
+
+
+app.post("/meta/truora-link/:number", async (req, res) => {
+  const { number } = req.params;
+
+  if (!number) {
+    return res.status(400).json({ error: "Falta el campo: customer_number" });
+  }
+
+  try {
+    const numWhitPrefix = `57${number}`;
+    await truoraLinkHandler(numWhitPrefix);
+    res.status(200).json({ success: true, message: "Mensaje Truora enviado correctamente" });
+  } catch (err) {
+    console.error("Error enviando mensaje Truora:", err);
+    res.status(500).json({ success: false, error: "Error enviando mensaje Truora" });
   }
 });
 
