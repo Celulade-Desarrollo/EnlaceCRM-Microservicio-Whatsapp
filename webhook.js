@@ -1,10 +1,14 @@
 import express from "express";
-import crypto from "crypto";
+import dotenv from 'dotenv';
+
+import { siHandlerMeta } from "./meta/events/siHandlerMeta.js";
+
 
 const app = express();
 app.use(express.json());
+dotenv.config();
 
-const VERIFY_TOKEN = "miverifytoken123";
+const VERIFY_TOKEN = "enlaceCRM2025_whatsappservice";
 
 
 app.get("/", (req, res) => {
@@ -48,8 +52,10 @@ app.post("/webhook", (req, res) => {
         console.log("texto del botón:", msg.button.text);
         console.log("de:", from)
 
-        // Logica para controlar la respuesta del Si
-
+        // Logica para controlar la respuesta del SI
+        if(msg.button.text.toLowerCase() === "si"){
+              siHandlerMeta(from)
+        }
     }
 }
 
@@ -64,6 +70,6 @@ app.post("/webhook", (req, res) => {
   }
 });
 
-app.listen(3000, () => {
-  console.log("Webhook ejecutándose en http://localhost:3000");
+app.listen(5000, () => {
+  console.log("Webhook ejecutándose en http://localhost:5000");
 });
