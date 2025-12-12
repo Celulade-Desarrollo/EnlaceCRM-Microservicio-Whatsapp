@@ -4,7 +4,7 @@
   
     const data = {
       Cedula: `${process.env.WHATSAPP_SENDER_CEDULA}`,
-      Password: `${process.env.WHATSAPP_SENDER_PASSWORD}`
+      Password: process.env.WHATSAPP_SENDER_PASSWORD
     };
   
     console.log(url, data)
