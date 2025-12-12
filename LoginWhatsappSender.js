@@ -7,7 +7,6 @@
       Password: process.env.WHATSAPP_SENDER_PASSWORD
     };
   
-    console.log(url, data)
     try {
       const response = await fetch(url, {
         method: 'POST',
