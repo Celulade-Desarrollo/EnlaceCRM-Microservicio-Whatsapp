@@ -4,6 +4,7 @@ import { sendMessage } from "./events/whatsapp.js";
 import { authMiddleware } from "./token.js";
 import { truoraLinkHandler } from "./meta/events/truoraLinkHandler.js";
 import { cupoEnlaceHandler } from "./meta/events/cupoMessage.js";
+import { cupoActivo } from "./meta/events/cupoActivo.js";
 
 const app = express();
 
@@ -62,6 +63,24 @@ app.post("/meta/cupo/:number/:name/:amount", async (req, res) => {
   try {
     const numWhitPrefix = `57${number}`;
     await cupoEnlaceHandler(numWhitPrefix, name, amount);
+    res.status(200).json({ success: true, message: "Mensaje Cupo enviado correctamente" });
+  } catch (err) {
+    console.error("Error enviando mensaje Cupo:", err);
+    res.status(500).json({ success: false, error: "Error enviando mensaje Cupo" });
+  }
+
+});
+
+app.post("/meta/cupo-activo/:number/:name", async (req, res) => {
+  const { number,name,amount } = req.params;
+
+  if (!number) {
+    return res.status(400).json({ error: "Falta el campo: customer_number" });
+  }
+
+  try {
+    const numWhitPrefix = `57${number}`;
+    await cupoActivo(numWhitPrefix, name);
     res.status(200).json({ success: true, message: "Mensaje Cupo enviado correctamente" });
   } catch (err) {
     console.error("Error enviando mensaje Cupo:", err);
