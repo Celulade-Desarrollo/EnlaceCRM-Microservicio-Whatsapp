@@ -5,6 +5,7 @@ import { authMiddleware } from "./token.js";
 import { truoraLinkHandler } from "./meta/events/truoraLinkHandler.js";
 import { cupoEnlaceHandler } from "./meta/events/cupoMessage.js";
 import { cupoActivo } from "./meta/events/cupoActivo.js";
+import { firmaDigitalMessage } from "./meta/events/firmaDigitalMessage.js";
 
 const app = express();
 
