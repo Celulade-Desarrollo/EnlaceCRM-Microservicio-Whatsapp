@@ -89,6 +89,23 @@ app.post("/meta/cupo-activo/:number/:name", async (req, res) => {
 
 });
 
+app.post("/meta/firma-digital/:number/:name/:email", async (req, res) => {
+  const { number,name,email } = req.params;
+
+  if (!number) {
+    return res.status(400).json({ error: "Falta el campo: customer_number" });
+  }
+
+  try {
+    const numWhitPrefix = `57${number}`;
+    await firmaDigitalMessage(numWhitPrefix, name, email);
+    res.status(200).json({ success: true, message: "Mensaje Firma Digital enviado correctamente" });
+  } catch (err) {
+    console.error("Error enviando mensaje Firma Digital:", err);
+    res.status(500).json({ success: false, error: "Error enviando mensaje Firma Digital" });
+  }
+
+});
 
 const PORT = 6000;
 app.listen(PORT, () => console.log("Servidor Whatsapp en puerto " + PORT));
