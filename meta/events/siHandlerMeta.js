@@ -11,7 +11,7 @@ export async function siHandlerMeta(customer_number){
     //Consultar con num
     try{
     const customer_info = await axios.get(`${servidor}/api/flujoRegistroEnlace/num/${num}`, { headers });
-
+        console.log(customer_info)
     if(customer_info){
     const id = customer_info.data[0].Id;;
 
