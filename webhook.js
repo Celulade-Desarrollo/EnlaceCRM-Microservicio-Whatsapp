@@ -31,7 +31,7 @@ app.get("/webhook", (req, res) => {
 });
 
 
-app.post("/webhook", (req, res) => {
+app.post("/webhook", async (req, res) => {
   try {
     const entry = req.body.entry?.[0];
 
@@ -55,9 +55,8 @@ app.post("/webhook", (req, res) => {
 
         // Logica para controlar la respuesta del SI
         if(msg.button.text.toLowerCase() === "si"){
-              const customer_name = siHandlerMeta(from);
-              console.log(customer_name)
-              diaHabilMessage(from, customer_name);
+              const customer_name = await siHandlerMeta(from);
+              await diaHabilMessage(from, customer_name);
         }
     }
 }
