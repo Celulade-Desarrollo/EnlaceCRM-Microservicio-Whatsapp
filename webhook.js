@@ -56,6 +56,7 @@ app.post("/webhook", (req, res) => {
         // Logica para controlar la respuesta del SI
         if(msg.button.text.toLowerCase() === "si"){
               const customer_name = siHandlerMeta(from);
+              console.log(customer_name)
               diaHabilMessage(from, customer_name);
         }
     }
