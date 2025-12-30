@@ -11,7 +11,6 @@ export async function siHandlerMeta(customer_number){
     //Consultar con num
     try{
     const customer_info = await axios.get(`${servidor}/api/flujoRegistroEnlace/num/${num}`, { headers });
-        console.log(customer_info)
     if(customer_info){
     const id = customer_info.data[0].Id;;
 
@@ -21,7 +20,7 @@ export async function siHandlerMeta(customer_number){
 
     await axios.put(`${servidor}/api/flujoRegistroEnlace/clienteAcepto/${id}`, {respuestaCliente: "si"}, { headers })}
 
-    const customer_name = customer_info.data[0]?.Nombres;
+    const customer_name = customer_info.data[0].Nombres;
     return customer_name; // Esto es para usarlo en el controlador del botón si 
 
     }catch(err){
