@@ -2,6 +2,7 @@ import express from "express";
 import dotenv from 'dotenv';
 
 import { siHandlerMeta } from "./meta/events/siHandlerMeta.js";
+import { diaHabilMessage } from "./meta/events/diahabilMessage.js";
 
 
 const app = express();
@@ -54,7 +55,8 @@ app.post("/webhook", (req, res) => {
 
         // Logica para controlar la respuesta del SI
         if(msg.button.text.toLowerCase() === "si"){
-              siHandlerMeta(from)
+              const customer_name = siHandlerMeta(from);
+              diaHabilMessage(from, customer_name);
         }
     }
 }
