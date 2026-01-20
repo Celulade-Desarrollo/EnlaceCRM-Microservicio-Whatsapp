@@ -11,7 +11,7 @@ export async function recaudoHandler(client, msg, texto) {
   console.log("Número recaudo:", numero);
 
   try {
-    const res = await fetch(`http://localhost:3000/api/recaudo/${numero}`);
+    const res = await fetch(`http://localhost:2000/api/recaudo/${numero}`);
     const data = await res.json();
 
     if (Array.isArray(data) && data.length > 0) {
