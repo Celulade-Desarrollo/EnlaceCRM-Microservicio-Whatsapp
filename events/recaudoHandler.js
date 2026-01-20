@@ -8,12 +8,11 @@ export async function recaudoHandler(client, msg, texto) {
   if (!match) return false; // no coincide, continúa a otros handlers
 
   const numero = match[1];
-  console.log("Número recaudo:", numero);
+
 
   try {
-    const res = await fetch(`http://localhost:2000/api/recaudo/${numero}`);
+    const res = await fetch(`http://localhost:3000/api/recaudo/${numero}`);
     const data = await res.json();
-
     if (Array.isArray(data) && data.length > 0) {
       const total = data.reduce((acc, m) => acc + Number(m.Monto || 0), 0);
 
@@ -36,12 +35,12 @@ Total recaudado: *$${formatearDinero(total)}*`;
         await client.sendMessage(msg.from, mensaje, { sendSeen: false });
       }
     } else {
-      await client.sendMessage(msg.from, "No se encontraron movimientos para este número.");
+      await client.sendMessage(msg.from, "No se encontraron movimientos para este número.", { sendSeen: false });
     }
   } catch (err) {
     console.error(err);
-    await client.sendMessage(msg.from, "Error consultando el backend.");
+    await client.sendMessage(msg.from, "Error consultando el backend.", { sendSeen: false });
   }
 
-  return true; // handler ejecutado
+  return true;
 }
