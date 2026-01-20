@@ -26,6 +26,9 @@ client.on("message", async (msg) => onMessage(client, msg));
 client.initialize();
 
 export const sendMessage = async (number, infomessage) => {
+
   const chatId = `${number}@c.us`;
-  await client.sendMessage(chatId, infomessage);
+  await client.sendMessage(chatId, infomessage,{
+    sendSeen: false
+  });
 };

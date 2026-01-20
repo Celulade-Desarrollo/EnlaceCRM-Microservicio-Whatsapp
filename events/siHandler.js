@@ -11,12 +11,12 @@ export async function siHandler(client, msg, texto) {
     const res = await fetch(`http://localhost:2000/api/flujoRegistroEnlace/${cedula}`);
     const data = await res.json();
 
-    await client.sendMessage(msg.from, `Consulta realizada para la cédula *${cedula}*`);
-    await client.sendMessage(msg.from, JSON.stringify(data, null, 2));
+    await client.sendMessage(msg.from, `Consulta realizada para la cédula *${cedula}*`, { sendSeen: false });
+    await client.sendMessage(msg.from, JSON.stringify(data, null, 2), { sendSeen: false });
 
   } catch (err) {
     console.error(err);
-    await client.sendMessage(msg.from, "Error al consultar la cédula.");
+    await client.sendMessage(msg.from, "Error al consultar la cédula.", { sendSeen: false });
   }
 
   return true;

@@ -11,7 +11,7 @@ export async function recaudoHandler(client, msg, texto) {
   console.log("Número recaudo:", numero);
 
   try {
-    const res = await fetch(`http://localhost:2000/api/recaudo/${numero}`);
+    const res = await fetch(`http://localhost:3000/api/recaudo/${numero}`);
     const data = await res.json();
 
     if (Array.isArray(data) && data.length > 0) {
@@ -23,7 +23,7 @@ export async function recaudoHandler(client, msg, texto) {
 Movimientos encontrados: ${data.length}
 Total recaudado: *$${formatearDinero(total)}*`;
 
-      await client.sendMessage(msg.from, resumen);
+      await client.sendMessage(msg.from, resumen, { sendSeen: false });
 
       for (const mov of data) {
         const mensaje =
@@ -33,7 +33,7 @@ Total recaudado: *$${formatearDinero(total)}*`;
  *Monto:* $${formatearDinero(mov.Monto)}
  *Factura:* ${mov.NroFacturaAlpina}`;
 
-        await client.sendMessage(msg.from, mensaje);
+        await client.sendMessage(msg.from, mensaje, { sendSeen: false });
       }
     } else {
       await client.sendMessage(msg.from, "No se encontraron movimientos para este número.");
