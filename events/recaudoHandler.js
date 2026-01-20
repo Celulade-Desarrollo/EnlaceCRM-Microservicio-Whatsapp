@@ -11,7 +11,7 @@ export async function recaudoHandler(client, msg, texto) {
 
 
   try {
-    const res = await fetch(`http://localhost:3000/api/recaudo/${numero}`);
+    const res = await fetch(`http://localhost:2000/api/recaudo/${numero}`);
     const data = await res.json();
     if (Array.isArray(data) && data.length > 0) {
       const total = data.reduce((acc, m) => acc + Number(m.Monto || 0), 0);
