@@ -28,6 +28,7 @@ client.initialize();
 export const sendMessage = async (number, infomessage) => {
 
   const chatId = `${number}@c.us`;
+  console.log(chatId)
   await client.sendMessage(chatId, infomessage,{
     sendSeen: false
   });
