@@ -1,6 +1,6 @@
 import express from "express";
 import cors from "cors";
-import { sendMessage } from "./events/whatsapp.js";
+// import { sendMessage } from "./events/whatsapp.js";
 import { authMiddleware } from "./token.js";
 import { truoraLinkHandler } from "./meta/events/truoraLinkHandler.js";
 import { cupoEnlaceHandler } from "./meta/events/cupoMessage.js";

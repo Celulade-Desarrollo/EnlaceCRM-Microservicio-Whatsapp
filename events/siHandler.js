@@ -8,7 +8,7 @@ export async function siHandler(client, msg, texto) {
   console.log("Cédula detectada:", cedula);
 
   try {
-    const res = await fetch(`http://localhost:2000/api/flujoRegistroEnlace/${cedula}`);
+    const res = await fetch(`/api/flujoRegistroEnlace/${cedula}`);
     const data = await res.json();
 
     await client.sendMessage(msg.from, `Consulta realizada para la cédula *${cedula}*`, { sendSeen: false });
