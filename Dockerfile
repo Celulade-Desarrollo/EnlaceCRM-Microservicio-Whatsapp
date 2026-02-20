@@ -1,5 +1,5 @@
 # Usa una imagen base de Node.js
-FROM node:14
+FROM node:18-alpine
 
 # Establece el directorio de trabajo
 WORKDIR /usr/src/app
@@ -14,7 +14,7 @@ RUN npm install
 COPY . .
 
 # Expone el puerto que tu aplicación utiliza
-EXPOSE 3000
+EXPOSE 6000
 
 # Comando para ejecutar la aplicación
 CMD ["node", "index.js"]
