@@ -11,28 +11,27 @@ export async function truoraLinkHandler(customer_number, customer_name) {
             to: customer_number,
             type: "template",
             template: {
-                name: "truoralink",
+                name: "truoralink5",
                 language: {
-                code: "en",
-                policy: "deterministic"
+                    code: "en_US"
                 },
                 components: [
-                {
-                    type: "body",
-                    parameters: [
                     {
-                        type: "text",
-                        text: customer_name
+                        type: "body",
+                        parameters: [
+                            {
+                                type: "text",
+                                text: customer_name
+                            }
+                        ]
                     }
-                    ]
-                }
                 ]
             }
         };
 
         const headers = {
-          Authorization: `Bearer ${process.env.META_API_KEY}`,
-          "Content-Type": "application/json",
+            Authorization: `Bearer ${process.env.META_API_KEY}`,
+            "Content-Type": "application/json",
         };
 
         const response = await axios.post(url, body, { headers });
@@ -59,4 +58,4 @@ export async function truoraLinkHandler(customer_number, customer_name) {
 
         throw err;
     }
-}
+}
