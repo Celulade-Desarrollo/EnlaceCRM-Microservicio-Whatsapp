@@ -1,4 +1,4 @@
-import makeWASocket, { useMultiFileAuthState, fetchLatestBaileysVersion } from '@whiskeysockets/baileys';
+import makeWASocket, { useMultiFileAuthState, fetchLatestBaileysVersion, DisconnectReason } from '@whiskeysockets/baileys';
 import { Boom } from '@hapi/boom';
 import qrcode from 'qrcode-terminal';
 import pino from 'pino';
@@ -7,7 +7,13 @@ import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const SESSION_DIR = path.join(process.cwd(), '.wa_session');
-const FATAL_CODES = [401, 440, 500];
+const FATAL_CODES = [
+  DisconnectReason.loggedOut,
+  DisconnectReason.connectionReplaced,
+  DisconnectReason.badSession,
+  DisconnectReason.multideviceMismatch,
+  401, 403, 411, 440, 500
+];
 
 class WhatsAppClient {
   constructor(options = {}) {
@@ -17,11 +23,13 @@ class WhatsAppClient {
     this._readyResolve = null;
     this._readyReject = null;
     this._reconnecting = false;
+    this._reconnectCount = 0;
     this._messageHandlers = [];
   }
 
   async init() {
     this._reconnecting = false;
+    this._reconnectCount = 0;
     const { state, saveCreds } = await useMultiFileAuthState(this.options.sessionDir);
     const { version } = await fetchLatestBaileysVersion();
 
@@ -45,7 +53,7 @@ class WhatsAppClient {
       this._readyResolve = resolve;
       this._readyReject = reject;
       setTimeout(() => {
-        if (!this.isReady) reject(new Error('[WA] Timeout. Escaneaste el QR?'));
+        if (!this.isReady) reject(new Error('[WA] Timeout (120s). Escaneaste el QR o WhatsApp no responde?'));
       }, 120_000);
     });
   }
@@ -133,8 +141,9 @@ class WhatsAppClient {
     }
 
     if (connection === 'open') {
-      console.log('[WA] Conectado.');
+      console.log('[WA] Conectado exitosamente.');
       this.isReady = true;
+      this._reconnectCount = 0;
       if (this._readyResolve) {
         this._readyResolve();
         this._readyResolve = null;
@@ -147,14 +156,19 @@ class WhatsAppClient {
       this.isReady = false;
 
       if (FATAL_CODES.includes(reason)) {
-        console.log(reason === 440
-          ? '\n[WA] ERROR 440: Conflicto de sesion. Borra .wa_session/ y reconecta.\n'
-          : `\n[WA] Sesion terminada (codigo ${reason}). Borra .wa_session/ y reconecta.\n`
-        );
+        console.log(`\n[WA] Sesión cerrada o inválida (código ${reason}).`);
+        console.log('[WA] Solución: Elimina la carpeta .wa_session/ y vuelve a iniciar el servidor para vincular escaneando el código QR.\n');
         try { this.sock?.end(); } catch {}
         process.exit(1);
       } else {
-        console.log(`[WA] Desconexion temporal (${reason}). Reconectando en 3s...`);
+        this._reconnectCount++;
+        if (this._reconnectCount > 5) {
+          console.error(`\n[WA] Demasiados reintentos fallidos (${this._reconnectCount}). Deteniendo reconexión.`);
+          console.error('[WA] Sugerencia: Elimina la carpeta .wa_session/ y escanea el código QR de nuevo.\n');
+          try { this.sock?.end(); } catch {}
+          process.exit(1);
+        }
+        console.log(`[WA] Desconexión temporal (${reason ?? 'desconocido'}). Reintento ${this._reconnectCount}/5 en 3s...`);
         setTimeout(() => this._reconnect(), 3000);
       }
     }
@@ -180,6 +194,7 @@ class WhatsAppClient {
       this._reconnecting = false;
     }
   }
+
 
   async close() {
     if (this.sock) {

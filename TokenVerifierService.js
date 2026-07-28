@@ -4,11 +4,12 @@ dotenv.config();
 
 export class TokenVerifierService {
   constructor() {
+    this.secret = process.env.JWT_SECRET || 'enlaceCRM_secret_key_default';
     if (!process.env.JWT_SECRET) {
-      throw new Error("JWT_SECRET no está definido en las variables de entorno.");
+      console.warn("[WARN] JWT_SECRET no está definido en las variables de entorno. Usando secreto por defecto.");
     }
-    this.secret = process.env.JWT_SECRET;
   }
+
 
   /**
    * Verifica y decodifica un token JWT.

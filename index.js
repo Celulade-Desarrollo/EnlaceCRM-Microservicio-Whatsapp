@@ -1,6 +1,8 @@
+import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import WhatsAppClient from './events/WhatsAppClient.js';
+
 import { authMiddleware } from './token.js';
 import { truoraLinkHandler } from './meta/events/truoraLinkHandler.js';
 import { cupoEnlaceHandler } from './meta/events/cupoMessage.js';
