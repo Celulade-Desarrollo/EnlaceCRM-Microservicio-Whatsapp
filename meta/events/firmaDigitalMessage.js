@@ -1,4 +1,5 @@
 import axios from "axios";
+import { notifyMetaEvent } from "../../services/notificationService.js";
 
 export async function firmaDigitalMessage(customer_number, customer_name, customer_email) {
   try {
@@ -41,7 +42,27 @@ export async function firmaDigitalMessage(customer_number, customer_name, custom
     const response = await axios.post(url, body, { headers });
     console.log("Mensaje enviado:", response.data);
 
+    notifyMetaEvent({
+      eventType: "Firma Digital",
+      recipientNumber: customer_number,
+      recipientName: customer_name,
+      success: true,
+      details: { email: customer_email },
+    }).catch((e) => console.error("[NOTIFIER] Error:", e.message));
+
   } catch (err) {
+    const errorMsg = err.response?.data?.error?.message || err.message;
     console.error("Error enviando mensaje en firmaDigitalMessage:", err.response?.data || err.message);
+
+    notifyMetaEvent({
+      eventType: "Firma Digital",
+      recipientNumber: customer_number,
+      recipientName: customer_name,
+      success: false,
+      details: { email: customer_email, error: errorMsg },
+    }).catch((e) => console.error("[NOTIFIER] Error:", e.message));
+
+    throw err;
   }
 }
+

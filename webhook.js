@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 
 import { siHandlerMeta } from "./meta/events/siHandlerMeta.js";
 import { diaHabilMessage } from "./meta/events/diahabilMessage.js";
-
+import { notifyMetaEvent } from "./services/notificationService.js";
 
 const app = express();
 app.use(express.json());
@@ -51,15 +51,24 @@ app.post("/webhook", async (req, res) => {
 
       if (msg.type === "button" && msg.button) {
         console.log("texto del botón:", msg.button.text);
-        console.log("de:", from)
+        console.log("de:", from);
 
         // Logica para controlar la respuesta del SI
         if(msg.button.text.toLowerCase() === "si"){
               const customer_name = await siHandlerMeta(from);
+
+              notifyMetaEvent({
+                eventType: 'Respuesta Botón "SI"',
+                recipientNumber: from,
+                recipientName: customer_name || 'Cliente',
+                success: true,
+              }).catch((e) => console.error('[NOTIFIER] Error:', e.message));
+
               await diaHabilMessage(from, customer_name);
         }
+      }
     }
-}
+
 
     if (value.statuses) {
       console.log("Status del mensaje:", value.statuses[0]);

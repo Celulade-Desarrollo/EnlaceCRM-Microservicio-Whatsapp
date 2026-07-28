@@ -1,4 +1,5 @@
 import axios from "axios";
+import { notifyMetaEvent } from "../../services/notificationService.js";
 
 export async function cupoActivo(customer_number, customer_name) {
   try {
@@ -37,7 +38,26 @@ export async function cupoActivo(customer_number, customer_name) {
     const response = await axios.post(url, body, { headers });
     console.log("Mensaje enviado:", response.data);
 
+    notifyMetaEvent({
+      eventType: "Cupo Activo",
+      recipientNumber: customer_number,
+      recipientName: customer_name,
+      success: true,
+    }).catch((e) => console.error("[NOTIFIER] Error:", e.message));
+
   } catch (err) {
+    const errorMsg = err.response?.data?.error?.message || err.message;
     console.error("Error enviando mensaje:", err.response?.data || err.message);
+
+    notifyMetaEvent({
+      eventType: "Cupo Activo",
+      recipientNumber: customer_number,
+      recipientName: customer_name,
+      success: false,
+      details: { error: errorMsg },
+    }).catch((e) => console.error("[NOTIFIER] Error:", e.message));
+
+    throw err;
   }
 }
+

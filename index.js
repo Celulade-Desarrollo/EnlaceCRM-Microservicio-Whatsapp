@@ -7,6 +7,7 @@ import { cupoEnlaceHandler } from './meta/events/cupoMessage.js';
 import { cupoActivo } from './meta/events/cupoActivo.js';
 import { firmaDigitalMessage } from './meta/events/firmaDigitalMessage.js';
 import { recaudoHandler } from './events/recaudoHandler.js';
+import { setWhatsAppClient, getNotificationNumbers, notifyMetaEvent } from './services/notificationService.js';
 
 const PORT = process.env.PORT || 6000;
 const app = express();
@@ -19,6 +20,7 @@ app.use(express.json());
 // ─── WHATSAPP CLIENT ──────────────────────────────────────────────────────────
 
 const wa = new WhatsAppClient();
+setWhatsAppClient(wa);
 
 // Recaudo funcion para el transportista 
 wa.onMessage(recaudoHandler);
@@ -45,6 +47,35 @@ app.get('/', authMiddleware, (req, res) => {
 
 app.get('/status', (req, res) => {
   res.json({ ok: true, ready: wa.isReady, starting });
+});
+
+// ─── ENDPOINTS NOTIFICACIONES ──────────────────────────────────────────────────
+
+app.get('/notifications/config', (req, res) => {
+  const numbers = getNotificationNumbers();
+  res.json({
+    ok: true,
+    totalNumbers: numbers.length,
+    configuredNumbers: numbers,
+    waReady: wa.isReady
+  });
+});
+
+app.post('/notifications/test', requireReady, async (req, res) => {
+  try {
+    const { eventType = 'Prueba de Notificación', recipientNumber = '573000000000', recipientName = 'Usuario Prueba' } = req.body;
+    await notifyMetaEvent({
+      eventType,
+      recipientNumber,
+      recipientName,
+      success: true,
+      details: { note: 'Esta es una notificación de prueba del sistema' }
+    });
+    res.json({ ok: true, message: 'Notificación de prueba enviada al grupo configurado.' });
+  } catch (err) {
+    console.error('Error enviando notificación de prueba:', err);
+    res.status(500).json({ ok: false, error: err.message });
+  }
 });
 
 // ─── SEND MESSAGE GENÉRICO ────────────────────────────────────────────────────
@@ -128,4 +159,4 @@ app.post('/meta/firma-digital/:number/:name/:email', requireReady, async (req, r
 
 app.listen(PORT, () => {
   console.log(`[SERVER] Corriendo en http://localhost:${PORT}`);
-});
+});
