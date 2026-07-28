@@ -64,30 +64,30 @@ export async function notifyMetaEvent({
   }
 
   const cleanRecipientNum = recipientNumber ? recipientNumber.replace(/\D/g, '') : 'N/A';
-  const statusEmoji = success ? '✅ Exitoso' : '❌ Fallido';
+  const statusText = success ? 'Exitoso' : 'Fallido';
   const timestamp = getFormattedTimestamp();
 
-  let message = `📢 *NOTIFICACIÓN EVENTO META*\n`;
-  message += `━━━━━━━━━━━━━━━━━━━━━━\n`;
-  message += `📋 *Evento:* ${eventType}\n`;
-  message += `👤 *Cliente:* ${recipientName}\n`;
-  message += `📱 *Número:* +${cleanRecipientNum}\n`;
-  message += `⚡ *Estado:* ${statusEmoji}\n`;
+  let message = `*Notificación Evento Meta*\n`;
+
+  message += `Evento: ${eventType}\n`;
+  message += `Cliente: ${recipientName}\n`;
+  message += `Número: ${cleanRecipientNum}\n`;
+  message += `Estado: ${statusText}\n`;
 
   if (details.amount) {
-    message += `💰 *Monto:* ${details.amount}\n`;
+    message += `Monto: ${details.amount}\n`;
   }
   if (details.email) {
-    message += `📧 *Correo:* ${details.email}\n`;
+    message += `Correo: ${details.email}\n`;
   }
   if (!success && details.error) {
-    message += `⚠️ *Detalle Error:* ${details.error}\n`;
+    message += `Error: ${details.error}\n`;
   }
 
-  message += `🕒 *Fecha:* ${timestamp}\n`;
-  message += `━━━━━━━━━━━━━━━━━━━━━━`;
+  message += `Fecha: ${timestamp}`;
 
   await sendNotificationToGroup(numbers, message);
+
 }
 
 /**
