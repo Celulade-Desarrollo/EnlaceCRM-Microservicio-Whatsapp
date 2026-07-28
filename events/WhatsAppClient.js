@@ -1,4 +1,4 @@
-import makeWASocket, { useMultiFileAuthState, fetchLatestBaileysVersion, DisconnectReason } from '@whiskeysockets/baileys';
+import makeWASocket, { useMultiFileAuthState, fetchLatestWaWebVersion, DisconnectReason, Browsers } from '@whiskeysockets/baileys';
 import { Boom } from '@hapi/boom';
 import qrcode from 'qrcode-terminal';
 import pino from 'pino';
@@ -31,16 +31,17 @@ class WhatsAppClient {
     this._reconnecting = false;
     this._reconnectCount = 0;
     const { state, saveCreds } = await useMultiFileAuthState(this.options.sessionDir);
-    const { version } = await fetchLatestBaileysVersion();
+    this._authState = state;
+    const { version } = await fetchLatestWaWebVersion().catch(() => ({ version: [2, 3000, 1044015310] }));
 
-    console.log(`[WA] Usando Baileys v${version.join('.')}`);
+    console.log(`[WA] Usando WhatsApp Web v${version.join('.')}`);
 
     this.sock = makeWASocket({
       version,
       auth: state,
       printQRInTerminal: false,
       logger: pino({ level: 'silent' }),
-      browser: ['Ubuntu Server', 'Chrome', '120.0'],
+      browser: Browsers.ubuntu('Chrome'),
       syncFullHistory: false,
       markOnlineOnConnect: false,
     });
@@ -57,6 +58,9 @@ class WhatsAppClient {
       }, 120_000);
     });
   }
+
+
+
 
   _bindMessageListener() {
     this.sock.ev.on('messages.upsert', async ({ messages, type }) => {
@@ -155,20 +159,23 @@ class WhatsAppClient {
       const reason = new Boom(lastDisconnect?.error)?.output?.statusCode;
       this.isReady = false;
 
-      if (FATAL_CODES.includes(reason)) {
-        console.log(`\n[WA] Sesión cerrada o inválida (código ${reason}).`);
+      // Una sesión se considera registrada si contiene credenciales de usuario ('me')
+      const isRegistered = Boolean(this._authState?.creds?.me?.id || this._authState?.creds?.registered);
+
+      if (isRegistered && FATAL_CODES.includes(reason)) {
+        console.log(`\n[WA] Sesión desvinculada o cerrada desde el teléfono (código ${reason}).`);
         console.log('[WA] Solución: Elimina la carpeta .wa_session/ y vuelve a iniciar el servidor para vincular escaneando el código QR.\n');
         try { this.sock?.end(); } catch {}
         process.exit(1);
       } else {
         this._reconnectCount++;
-        if (this._reconnectCount > 5) {
+        if (this._reconnectCount > 10) {
           console.error(`\n[WA] Demasiados reintentos fallidos (${this._reconnectCount}). Deteniendo reconexión.`);
           console.error('[WA] Sugerencia: Elimina la carpeta .wa_session/ y escanea el código QR de nuevo.\n');
           try { this.sock?.end(); } catch {}
           process.exit(1);
         }
-        console.log(`[WA] Desconexión temporal (${reason ?? 'desconocido'}). Reintento ${this._reconnectCount}/5 en 3s...`);
+        console.log(`[WA] Desconexión temporal (${reason ?? 'esperando QR'}). Reintentando (${this._reconnectCount}/10) en 3s...`);
         setTimeout(() => this._reconnect(), 3000);
       }
     }
@@ -179,12 +186,13 @@ class WhatsAppClient {
     this._reconnecting = true;
     try {
       const { state, saveCreds } = await useMultiFileAuthState(this.options.sessionDir);
-      const { version } = await fetchLatestBaileysVersion();
+      this._authState = state;
+      const { version } = await fetchLatestWaWebVersion().catch(() => ({ version: [2, 3000, 1044015310] }));
       this.sock = makeWASocket({
         version, auth: state,
         printQRInTerminal: false,
         logger: pino({ level: 'silent' }),
-        browser: ['Ubuntu Server', 'Chrome', '120.0'],
+        browser: Browsers.ubuntu('Chrome'),
         syncFullHistory: false, markOnlineOnConnect: false,
       });
       this.sock.ev.on('creds.update', saveCreds);
@@ -194,6 +202,7 @@ class WhatsAppClient {
       this._reconnecting = false;
     }
   }
+
 
 
   async close() {
