@@ -26,7 +26,7 @@ export async function firmaDigitalMessage(customer_number, customer_name, custom
               },
               {
                 type: "text",
-                text: customer_email, 
+                text: customer_email,
               }
             ],
           },
@@ -43,7 +43,7 @@ export async function firmaDigitalMessage(customer_number, customer_name, custom
     console.log("Mensaje enviado:", response.data);
 
     notifyMetaEvent({
-      eventType: "Firma Digital",
+      eventType: "Banco ha enviado firma Digital",
       recipientNumber: customer_number,
       recipientName: customer_name,
       success: true,
@@ -55,7 +55,7 @@ export async function firmaDigitalMessage(customer_number, customer_name, custom
     console.error("Error enviando mensaje en firmaDigitalMessage:", err.response?.data || err.message);
 
     notifyMetaEvent({
-      eventType: "Firma Digital",
+      eventType: "Banco ha enviado firma Digital",
       recipientNumber: customer_number,
       recipientName: customer_name,
       success: false,

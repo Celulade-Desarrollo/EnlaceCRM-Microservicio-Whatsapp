@@ -1,0 +1,45 @@
+@baseUrl = http://localhost:6000
+@phone = 3167136992
+@name = Jhon
+@email = jhon@gmail.com
+@amount = 200.000
+
+### 1. Estado del Servidor WhatsApp
+GET {{baseUrl}}/status
+
+### 2. Configuración del Grupo de Notificaciones
+GET {{baseUrl}}/notifications/config
+
+### 3. Enviar Notificación de Prueba al Grupo
+POST {{baseUrl}}/notifications/test
+Content-Type: application/json
+
+{
+  "eventType": "Prueba REST Client",
+  "recipientNumber": "57{{phone}}",
+  "recipientName": "{{name}}"
+}
+
+### 4. Enviar Mensaje Genérico de WhatsApp (Baileys)
+POST {{baseUrl}}/send-message
+Content-Type: application/json
+
+{
+  "number": "57{{phone}}",
+  "message": "Hola {{name}}, este es un mensaje de prueba desde REST Client."
+}
+
+### 5. Evento Meta: Truora Link
+POST {{baseUrl}}/meta/truora-link/{{phone}}/{{name}}
+
+### 6. Evento Meta: Cupo Enlace
+POST {{baseUrl}}/meta/cupo/{{phone}}/{{name}}/{{amount}}
+
+### 7. Evento Meta: Cupo Activo
+POST {{baseUrl}}/meta/cupo-activo/{{phone}}/{{name}}
+
+### 8. Evento Meta: Firma Digital
+POST {{baseUrl}}/meta/firma-digital/{{phone}}/{{name}}/{{email}}
+
+### 9. Evento Meta: Día Hábil Cupo
+POST {{baseUrl}}/meta/dia-habil/{{phone}}/{{name}}

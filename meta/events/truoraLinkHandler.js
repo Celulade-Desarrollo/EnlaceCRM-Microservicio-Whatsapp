@@ -13,7 +13,7 @@ export async function truoraLinkHandler(customer_number, customer_name) {
             template: {
                 name: "truoralink5",
                 language: {
-                    code: "en_US"
+                    code: "en"
                 },
                 components: [
                     {

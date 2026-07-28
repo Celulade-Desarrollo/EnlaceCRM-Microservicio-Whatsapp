@@ -56,14 +56,6 @@ app.post("/webhook", async (req, res) => {
         // Logica para controlar la respuesta del SI
         if(msg.button.text.toLowerCase() === "si"){
               const customer_name = await siHandlerMeta(from);
-
-              notifyMetaEvent({
-                eventType: 'Respuesta Botón "SI"',
-                recipientNumber: from,
-                recipientName: customer_name || 'Cliente',
-                success: true,
-              }).catch((e) => console.error('[NOTIFIER] Error:', e.message));
-
               await diaHabilMessage(from, customer_name);
         }
       }

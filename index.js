@@ -8,6 +8,7 @@ import { truoraLinkHandler } from './meta/events/truoraLinkHandler.js';
 import { cupoEnlaceHandler } from './meta/events/cupoMessage.js';
 import { cupoActivo } from './meta/events/cupoActivo.js';
 import { firmaDigitalMessage } from './meta/events/firmaDigitalMessage.js';
+import { diaHabilMessage } from './meta/events/diahabilMessage.js';
 import { recaudoHandler } from './events/recaudoHandler.js';
 import { setWhatsAppClient, getNotificationNumbers, notifyMetaEvent } from './services/notificationService.js';
 
@@ -154,6 +155,20 @@ app.post('/meta/firma-digital/:number/:name/:email', requireReady, async (req, r
   } catch (err) {
     console.error('Error enviando mensaje Firma Digital:', err);
     res.status(500).json({ success: false, error: 'Error enviando mensaje Firma Digital' });
+  }
+});
+
+app.post('/meta/dia-habil/:number/:name', requireReady, async (req, res) => {
+  const { number, name } = req.params;
+
+  if (!number) return res.status(400).json({ error: 'Falta el campo: number' });
+
+  try {
+    await diaHabilMessage(`57${number}`, name);
+    res.status(200).json({ success: true, message: 'Mensaje Día Hábil enviado correctamente' });
+  } catch (err) {
+    console.error('Error enviando mensaje Día Hábil:', err);
+    res.status(500).json({ success: false, error: 'Error enviando mensaje Día Hábil' });
   }
 });
 

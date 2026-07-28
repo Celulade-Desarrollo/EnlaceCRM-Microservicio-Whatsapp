@@ -14,7 +14,6 @@ export async function diaHabilMessage(customer_number, customer_name) {
         name: "diahabilcupo",
         language: {
           code: "en",
-          policy: "deterministic",
         },
         components: [
           {
