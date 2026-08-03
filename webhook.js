@@ -63,7 +63,36 @@ app.post("/webhook", async (req, res) => {
 
 
     if (value.statuses) {
-      console.log("Status del mensaje:", value.statuses[0]);
+      const status = value.statuses[0];
+      
+      if (status.status === 'failed') {
+        console.error("Error al enviar el mensaje:");
+        console.error(`- ID del mensaje: ${status.id}`);
+        console.error(`- Destinatario: ${status.recipient_id}`);
+        
+        let errorMessage = '';
+        if (status.errors && status.errors.length > 0) {
+          status.errors.forEach(error => {
+            console.error(`- Código de error: ${error.code}`);
+            console.error(`- Título: ${error.title}`);
+            console.error(`- Mensaje: ${error.message}`);
+            errorMessage += `${error.code}: ${error.title}. `;
+            if (error.error_data && error.error_data.details) {
+              console.error(`- Detalles: ${error.error_data.details}`);
+            }
+          });
+        }
+
+        // Notificar a los supervisores sobre el fallo
+        notifyMetaEvent({
+          eventType: 'Error de Envío (Meta)',
+          recipientNumber: status.recipient_id,
+          success: false,
+          details: { error: errorMessage.trim() || 'Error desconocido' }
+        });
+      } else {
+        console.log(`Status del mensaje (${status.status}):`, status.id);
+      }
     }
 
     res.sendStatus(200);

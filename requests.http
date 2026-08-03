@@ -1,8 +1,8 @@
 @baseUrl = http://localhost:6000
-@phone = 3167136992
-@name = Jhon
+@phone = 3125160675
+@name = Luz Estella Bedoña 
 @email = jhon@gmail.com
-@amount = 200.000
+@amount = 850.000
 
 ### 1. Estado del Servidor WhatsApp
 GET {{baseUrl}}/status
